@@ -83,12 +83,12 @@ export default function ChatPanel({ messages, hitlPlan, onSend, onHitlRespond }:
       </div>
 
       {hitlPlan && (
-        <div className="px-4 pb-3">
+        <div className="px-4 pb-3 shrink-0">
           <HitlCard plan={hitlPlan} onRespond={onHitlRespond} />
         </div>
       )}
 
-      <div className="p-4 border-t border-border bg-card">
+      <div className="p-4 border-t border-border bg-card shrink-0">
         <div className="flex gap-2">
           <input
             type="text"

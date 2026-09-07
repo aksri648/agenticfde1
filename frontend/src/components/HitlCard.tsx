@@ -12,7 +12,7 @@ export default function HitlCard({ plan, onRespond }: HitlCardProps) {
         <AlertTriangle size={18} className="text-yellow-500" />
         <h3 className="text-yellow-500 font-bold text-sm">Human Approval Required</h3>
       </div>
-      <div className="bg-background/80 rounded-lg p-3 mb-4 text-sm prose prose-sm max-w-none dark:prose-invert">
+      <div className="bg-background/80 rounded-lg p-3 mb-4 text-sm prose prose-sm max-w-none dark:prose-invert max-h-[40vh] overflow-y-auto">
         <p className="whitespace-pre-wrap">{plan}</p>
       </div>
       <div className="flex gap-2">
