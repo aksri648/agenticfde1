@@ -42,12 +42,11 @@ llm_deployer_agent_options = ClaudeAgentOptions(
         "runpod": get_hosted_mcp_config("runpod"),
         "azure": azure_server,
     },
+    tools=[],
     allowed_tools=[
         "mcp__hitl__request_human_approval",
         "mcp__runpod__*",
         "mcp__azure__*",
-        "Read",
-        "Bash",
     ],
     permission_mode="acceptEdits",
 )

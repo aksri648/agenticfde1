@@ -22,4 +22,16 @@ def get_hosted_mcp_config(server_name: str) -> dict:
         if api_key:
             config["headers"] = {"X-Goog-Api-Key": api_key}
 
+    # Render MCP requires API key as Bearer token
+    if server_name == "render":
+        token = os.getenv("RENDER_API_KEY", "")
+        if token:
+            config["headers"] = {"Authorization": f"Bearer {token}"}
+
+    # RunPod MCP requires API key as Bearer token
+    if server_name == "runpod":
+        token = os.getenv("RUNPOD_API_KEY", "")
+        if token:
+            config["headers"] = {"Authorization": f"Bearer {token}"}
+
     return config

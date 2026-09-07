@@ -16,8 +16,11 @@ async def daytona_create_workspace(args):
     async with aiohttp.ClientSession() as session:
         headers = {"Authorization": f"Bearer {DAYTONA_API_KEY}", "Content-Type": "application/json"}
         payload = {"name": args["name"], "image": args.get("image", "daytona/workspace:latest")}
-        async with session.post(f"{DAYTONA_API_URL}/workspaces", json=payload, headers=headers) as resp:
-            data = await resp.json()
+        async with session.post(f"{DAYTONA_API_URL}/sandbox", json=payload, headers=headers) as resp:
+            try:
+                data = await resp.json()
+            except:
+                data = {"error": "API Error", "status": resp.status, "text": await resp.text()}
             return {"content": [{"type": "text", "text": json.dumps(data)}]}
 
 
@@ -29,8 +32,11 @@ async def daytona_create_workspace(args):
 async def daytona_start_workspace(args):
     async with aiohttp.ClientSession() as session:
         headers = {"Authorization": f"Bearer {DAYTONA_API_KEY}"}
-        async with session.post(f"{DAYTONA_API_URL}/workspaces/{args['workspace_id']}/start", headers=headers) as resp:
-            data = await resp.json()
+        async with session.post(f"{DAYTONA_API_URL}/sandbox/{args['workspace_id']}/start", headers=headers) as resp:
+            try:
+                data = await resp.json()
+            except:
+                data = {"error": "API Error", "status": resp.status, "text": await resp.text()}
             return {"content": [{"type": "text", "text": json.dumps(data)}]}
 
 
@@ -42,8 +48,11 @@ async def daytona_start_workspace(args):
 async def daytona_stop_workspace(args):
     async with aiohttp.ClientSession() as session:
         headers = {"Authorization": f"Bearer {DAYTONA_API_KEY}"}
-        async with session.post(f"{DAYTONA_API_URL}/workspaces/{args['workspace_id']}/stop", headers=headers) as resp:
-            data = await resp.json()
+        async with session.post(f"{DAYTONA_API_URL}/sandbox/{args['workspace_id']}/stop", headers=headers) as resp:
+            try:
+                data = await resp.json()
+            except:
+                data = {"error": "API Error", "status": resp.status, "text": await resp.text()}
             return {"content": [{"type": "text", "text": json.dumps(data)}]}
 
 
@@ -55,8 +64,11 @@ async def daytona_stop_workspace(args):
 async def daytona_delete_workspace(args):
     async with aiohttp.ClientSession() as session:
         headers = {"Authorization": f"Bearer {DAYTONA_API_KEY}"}
-        async with session.delete(f"{DAYTONA_API_URL}/workspaces/{args['workspace_id']}", headers=headers) as resp:
-            data = await resp.json()
+        async with session.delete(f"{DAYTONA_API_URL}/sandbox/{args['workspace_id']}", headers=headers) as resp:
+            try:
+                data = await resp.json()
+            except:
+                data = {"error": "API Error", "status": resp.status, "text": await resp.text()}
             return {"content": [{"type": "text", "text": json.dumps(data)}]}
 
 
@@ -68,8 +80,11 @@ async def daytona_delete_workspace(args):
 async def daytona_list_workspaces(_args):
     async with aiohttp.ClientSession() as session:
         headers = {"Authorization": f"Bearer {DAYTONA_API_KEY}"}
-        async with session.get(f"{DAYTONA_API_URL}/workspaces", headers=headers) as resp:
-            data = await resp.json()
+        async with session.get(f"{DAYTONA_API_URL}/sandbox", headers=headers) as resp:
+            try:
+                data = await resp.json()
+            except:
+                data = {"error": "API Error", "status": resp.status, "text": await resp.text()}
             return {"content": [{"type": "text", "text": json.dumps(data)}]}
 
 
@@ -81,8 +96,11 @@ async def daytona_list_workspaces(_args):
 async def daytona_get_workspace(args):
     async with aiohttp.ClientSession() as session:
         headers = {"Authorization": f"Bearer {DAYTONA_API_KEY}"}
-        async with session.get(f"{DAYTONA_API_URL}/workspaces/{args['workspace_id']}", headers=headers) as resp:
-            data = await resp.json()
+        async with session.get(f"{DAYTONA_API_URL}/sandbox/{args['workspace_id']}", headers=headers) as resp:
+            try:
+                data = await resp.json()
+            except:
+                data = {"error": "API Error", "status": resp.status, "text": await resp.text()}
             return {"content": [{"type": "text", "text": json.dumps(data)}]}
 
 
@@ -96,11 +114,14 @@ async def daytona_execute_command(args):
         headers = {"Authorization": f"Bearer {DAYTONA_API_KEY}", "Content-Type": "application/json"}
         payload = {"command": args["command"]}
         async with session.post(
-            f"{DAYTONA_API_URL}/workspaces/{args['workspace_id']}/execute",
+            f"{DAYTONA_API_URL}/sandbox/{args['workspace_id']}/execute",
             json=payload,
             headers=headers,
         ) as resp:
-            data = await resp.json()
+            try:
+                data = await resp.json()
+            except:
+                data = {"error": "API Error", "status": resp.status, "text": await resp.text()}
             return {"content": [{"type": "text", "text": json.dumps(data)}]}
 
 
@@ -114,11 +135,14 @@ async def daytona_create_file(args):
         headers = {"Authorization": f"Bearer {DAYTONA_API_KEY}", "Content-Type": "application/json"}
         payload = {"path": args["path"], "content": args["content"]}
         async with session.post(
-            f"{DAYTONA_API_URL}/workspaces/{args['workspace_id']}/files",
+            f"{DAYTONA_API_URL}/sandbox/{args['workspace_id']}/files",
             json=payload,
             headers=headers,
         ) as resp:
-            data = await resp.json()
+            try:
+                data = await resp.json()
+            except:
+                data = {"error": "API Error", "status": resp.status, "text": await resp.text()}
             return {"content": [{"type": "text", "text": json.dumps(data)}]}
 
 
@@ -131,10 +155,13 @@ async def daytona_get_file(args):
     async with aiohttp.ClientSession() as session:
         headers = {"Authorization": f"Bearer {DAYTONA_API_KEY}"}
         async with session.get(
-            f"{DAYTONA_API_URL}/workspaces/{args['workspace_id']}/files/{args['path']}",
+            f"{DAYTONA_API_URL}/sandbox/{args['workspace_id']}/files/{args['path']}",
             headers=headers,
         ) as resp:
-            data = await resp.json()
+            try:
+                data = await resp.json()
+            except:
+                data = {"error": "API Error", "status": resp.status, "text": await resp.text()}
             return {"content": [{"type": "text", "text": json.dumps(data)}]}
 
 
@@ -147,10 +174,13 @@ async def daytona_get_preview_url(args):
     async with aiohttp.ClientSession() as session:
         headers = {"Authorization": f"Bearer {DAYTONA_API_KEY}"}
         async with session.get(
-            f"{DAYTONA_API_URL}/workspaces/{args['workspace_id']}/preview",
+            f"{DAYTONA_API_URL}/sandbox/{args['workspace_id']}/preview",
             headers=headers,
         ) as resp:
-            data = await resp.json()
+            try:
+                data = await resp.json()
+            except:
+                data = {"error": "API Error", "status": resp.status, "text": await resp.text()}
             return {"content": [{"type": "text", "text": json.dumps(data)}]}
 
 

@@ -46,6 +46,7 @@ deployer_agent_options = ClaudeAgentOptions(
         "azure": azure_server,
         "daytona": daytona_server,
     },
+    tools=[],
     allowed_tools=[
         "mcp__hitl__request_human_approval",
         "mcp__github__*",
@@ -54,8 +55,6 @@ deployer_agent_options = ClaudeAgentOptions(
         "mcp__render__*",
         "mcp__azure__*",
         "mcp__daytona__*",
-        "Read",
-        "Bash",
     ],
     permission_mode="acceptEdits",
 )

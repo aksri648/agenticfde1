@@ -92,6 +92,9 @@ async def handle_start_task(sid, data):
                     "plan": event.get("plan", "No plan provided"),
                 }, room=sid)
 
+            elif event["type"] == "log":
+                send_log(sid, agent_name, event.get("content", ""))
+
             elif event["type"] == "mcp_error":
                 send_log(sid, "System", f"MCP server '{event['server']}' status: {event['status']}")
 

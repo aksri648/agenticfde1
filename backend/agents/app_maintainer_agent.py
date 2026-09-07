@@ -51,16 +51,13 @@ maintainer_agent_options = ClaudeAgentOptions(
         "stitch": get_hosted_mcp_config("stitch"),
         "daytona": daytona_server,
     },
+    tools=[],
     allowed_tools=[
         "mcp__hitl__request_human_approval",
         "mcp__github__*",
         "mcp__tavily__*",
         "mcp__stitch__*",
         "mcp__daytona__*",
-        "Read",
-        "Write",
-        "Edit",
-        "Bash",
     ],
     permission_mode="acceptEdits",
 )

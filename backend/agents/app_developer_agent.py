@@ -40,6 +40,7 @@ dev_agent_options = ClaudeAgentOptions(
         "daytona": daytona_server,
         "s3": s3_server,
     },
+    tools=[],
     allowed_tools=[
         "mcp__hitl__request_human_approval",
         "mcp__github__*",
@@ -47,10 +48,6 @@ dev_agent_options = ClaudeAgentOptions(
         "mcp__stitch__*",
         "mcp__daytona__*",
         "mcp__s3__*",
-        "Read",
-        "Write",
-        "Edit",
-        "Bash",
     ],
     permission_mode="acceptEdits",
 )

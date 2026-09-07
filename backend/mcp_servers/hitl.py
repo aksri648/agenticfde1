@@ -1,5 +1,8 @@
 import json
+import os
 from claude_agent_sdk import tool, create_sdk_mcp_server
+
+BYPASS_HITL = os.getenv("BYPASS_HITL", "0") == "1"
 
 
 @tool(
@@ -9,6 +12,17 @@ from claude_agent_sdk import tool, create_sdk_mcp_server
 )
 async def request_human_approval(args):
     plan = args["plan"]
+    if BYPASS_HITL:
+        return {
+            "content": [
+                {
+                    "type": "text",
+                    "text": json.dumps(
+                        {"__approved__": True, "plan": plan, "decision": "Approved (auto-bypass)"}
+                    ),
+                }
+            ]
+        }
     return {
         "content": [
             {

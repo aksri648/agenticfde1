@@ -13,6 +13,7 @@ pm_agent_options = ClaudeAgentOptions(
     ),
     model=DEFAULT_MODEL,
     mcp_servers={"hitl": hitl_server},
+    tools=[],
     allowed_tools=["mcp__hitl__request_human_approval", "Task"],
     permission_mode="acceptEdits",
 )

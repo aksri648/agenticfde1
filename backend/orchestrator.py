@@ -1,5 +1,6 @@
 import json
 import asyncio
+import os
 from typing import AsyncGenerator
 from claude_agent_sdk import (
     query,
@@ -8,6 +9,8 @@ from claude_agent_sdk import (
     ResultMessage,
     SystemMessage,
 )
+
+BYPASS_HITL = os.getenv("BYPASS_HITL", "0") == "1"
 
 
 async def run_agent_task(
@@ -18,11 +21,14 @@ async def run_agent_task(
     """Run an agent task and yield structured events."""
     opts_dict = {
         "system_prompt": agent_options.system_prompt,
-        "model": agent_options.model,
         "mcp_servers": agent_options.mcp_servers,
         "allowed_tools": agent_options.allowed_tools,
         "permission_mode": agent_options.permission_mode,
     }
+    if agent_options.tools is not None:
+        opts_dict["tools"] = agent_options.tools
+    if agent_options.model:
+        opts_dict["model"] = agent_options.model
     if session_id:
         opts_dict["session_id"] = session_id
 
@@ -40,13 +46,27 @@ async def run_agent_task(
                         "input": block.input,
                     }
                 elif hasattr(block, "content"):
-                    # ToolResultBlock
-                    yield {"type": "tool_result", "content": block.content}
+                    content = block.content
+                    # Check for HITL interrupt in tool result
+                    if isinstance(content, str):
+                        try:
+                            parsed = json.loads(content)
+                            if isinstance(parsed, dict) and parsed.get("__interrupt__"):
+                                if BYPASS_HITL:
+                                    yield {"type": "log", "content": "HITL bypassed — auto-approving."}
+                                    continue
+                                yield {
+                                    "type": "interrupt",
+                                    "plan": parsed.get("plan", "No plan provided"),
+                                }
+                                continue
+                        except (json.JSONDecodeError, TypeError):
+                            pass
+                    yield {"type": "tool_result", "content": content}
 
         elif isinstance(message, SystemMessage):
             if hasattr(message, "session_id"):
                 yield {"type": "session", "session_id": message.session_id}
-            # Check for MCP init status
             if hasattr(message, "subtype") and message.subtype == "init":
                 mcp_servers = message.data.get("mcp_servers", []) if hasattr(message, "data") else []
                 for server in mcp_servers:
