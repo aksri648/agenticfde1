@@ -27,6 +27,7 @@ export default function App() {
     hitlPlan,
     daytonaUrl,
     activeAgent,
+    setActiveAgent,
     startTask,
     respondHitl,
   } = useSocket();
@@ -50,7 +51,7 @@ export default function App() {
             {AGENTS.map(a => (
               <button
                 key={a.id}
-                onClick={() => {}}
+                onClick={() => setActiveAgent(a.id)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   activeAgent === a.id
                     ? `${a.color} text-white shadow-md`

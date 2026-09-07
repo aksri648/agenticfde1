@@ -118,6 +118,7 @@ export function useSocket() {
     hitlPlan,
     daytonaUrl,
     activeAgent,
+    setActiveAgent,
     startTask,
     respondHitl,
     setDaytonaUrl,
