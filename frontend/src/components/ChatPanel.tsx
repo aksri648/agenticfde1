@@ -28,13 +28,13 @@ export default function ChatPanel({ messages, hitlPlan, onSend, onHitlRespond }:
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-800">
-        <Send size={18} className="text-blue-400" />
+    <div className="flex flex-col h-full bg-background">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-card">
+        <Send size={18} className="text-blue-500" />
         <h2 className="text-lg font-bold">Agent Chat</h2>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((msg, idx) => {
           if (msg.role === 'tool') {
             return (
@@ -52,23 +52,23 @@ export default function ChatPanel({ messages, hitlPlan, onSend, onHitlRespond }:
               className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[85%] rounded-xl px-4 py-3 ${
+                className={`max-w-[85%] rounded-xl px-4 py-3 shadow-sm border ${
                   msg.role === 'user'
-                    ? 'bg-blue-600/20 border border-blue-700/50'
-                    : 'bg-gray-800 border border-gray-700'
+                    ? 'bg-primary text-primary-foreground border-primary/20'
+                    : 'bg-muted/50 border-border'
                 }`}
               >
                 <div className="flex items-center gap-2 mb-2">
                   {msg.role === 'user' ? (
-                    <User size={14} className="text-blue-400" />
+                    <User size={14} className="text-primary-foreground/70" />
                   ) : (
-                    <Bot size={14} className="text-green-400" />
+                    <Bot size={14} className="text-green-500 dark:text-green-400" />
                   )}
-                  <span className="text-xs font-semibold text-gray-400 uppercase">
+                  <span className={`text-xs font-semibold uppercase ${msg.role === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
                     {msg.role === 'user' ? 'You' : msg.agent || 'Agent'}
                   </span>
                 </div>
-                <div className="text-sm prose prose-invert prose-sm max-w-none break-words">
+                <div className="text-sm prose prose-sm max-w-none break-words dark:prose-invert">
                   <ReactMarkdown 
                     remarkPlugins={[remarkGfm]}
                   >
@@ -88,7 +88,7 @@ export default function ChatPanel({ messages, hitlPlan, onSend, onHitlRespond }:
         </div>
       )}
 
-      <div className="p-4 border-t border-gray-800">
+      <div className="p-4 border-t border-border bg-card">
         <div className="flex gap-2">
           <input
             type="text"
@@ -96,11 +96,11 @@ export default function ChatPanel({ messages, hitlPlan, onSend, onHitlRespond }:
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSend()}
             placeholder="Instruct the PM Agent..."
-            className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+            className="flex-1 bg-background border border-input rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring transition-all"
           />
           <button
             onClick={handleSend}
-            className="bg-blue-600 hover:bg-blue-500 px-4 rounded-lg flex items-center transition-colors"
+            className="bg-primary text-primary-foreground hover:opacity-90 px-4 rounded-lg flex items-center transition-opacity"
           >
             <Send size={18} />
           </button>

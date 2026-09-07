@@ -3,13 +3,14 @@ import ChatPanel from './components/ChatPanel';
 import LogsPanel from './components/LogsPanel';
 import DaytonaPreview from './components/DaytonaPreview';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs';
+import { ModeToggle } from './components/ModeToggle';
 
 const AGENTS = [
-  { id: 'pm', label: 'PM Agent', color: 'bg-purple-600' },
-  { id: 'developer', label: 'Developer', color: 'bg-green-600' },
-  { id: 'deployer', label: 'Deployer', color: 'bg-orange-600' },
-  { id: 'maintainer', label: 'Maintainer', color: 'bg-cyan-600' },
-  { id: 'llm_deployer', label: 'LLM Deployer', color: 'bg-pink-600' },
+  { id: 'pm', label: 'PM Agent', color: 'bg-purple-600 dark:bg-purple-700' },
+  { id: 'developer', label: 'Developer', color: 'bg-green-600 dark:bg-green-700' },
+  { id: 'deployer', label: 'Deployer', color: 'bg-orange-600 dark:bg-orange-700' },
+  { id: 'maintainer', label: 'Maintainer', color: 'bg-cyan-600 dark:bg-cyan-700' },
+  { id: 'llm_deployer', label: 'LLM Deployer', color: 'bg-pink-600 dark:bg-pink-700' },
 ];
 
 export default function App() {
@@ -29,36 +30,39 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-950 text-white">
+    <div className="flex flex-col h-screen bg-background text-foreground transition-colors">
       {/* Top Bar */}
-      <header className="flex items-center justify-between px-6 py-3 border-b border-gray-800 bg-gray-950">
+      <header className="flex items-center justify-between px-6 py-3 border-b border-border bg-card">
         <div className="flex items-center gap-3">
           <h1 className="text-xl font-bold">
-            5-Agent <span className="text-blue-400">System</span>
+            5-Agent <span className="text-blue-500">System</span>
           </h1>
           <div className={`w-2 h-2 rounded-full ${connected ? 'bg-green-500' : 'bg-red-500'}`} />
         </div>
-        <div className="flex gap-2">
-          {AGENTS.map(a => (
-            <button
-              key={a.id}
-              onClick={() => {}}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                activeAgent === a.id
-                  ? `${a.color} text-white shadow-lg`
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-              }`}
-            >
-              {a.label}
-            </button>
-          ))}
+        <div className="flex items-center gap-4">
+          <div className="flex gap-2">
+            {AGENTS.map(a => (
+              <button
+                key={a.id}
+                onClick={() => {}}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  activeAgent === a.id
+                    ? `${a.color} text-white shadow-md`
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                }`}
+              >
+                {a.label}
+              </button>
+            ))}
+          </div>
+          <ModeToggle />
         </div>
       </header>
 
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Pane: Chat */}
-        <div className="w-[45%] border-r border-gray-800 flex flex-col">
+        <div className="w-[45%] border-r border-border flex flex-col bg-card/50">
           <ChatPanel
             messages={messages}
             hitlPlan={hitlPlan}
@@ -68,10 +72,10 @@ export default function App() {
         </div>
 
         {/* Right Pane: Tabs */}
-        <div className="w-[55%] flex flex-col bg-gray-950">
+        <div className="w-[55%] flex flex-col bg-background">
           <Tabs defaultValue="logs" className="w-full h-full flex flex-col">
-            <div className="border-b border-gray-800 px-4 py-2 flex-shrink-0">
-              <TabsList>
+            <div className="border-b border-border px-4 py-2 flex-shrink-0 bg-card">
+              <TabsList className="bg-muted border border-border">
                 <TabsTrigger value="logs">Agent Logs</TabsTrigger>
                 {daytonaUrl && <TabsTrigger value="preview">Live Preview</TabsTrigger>}
               </TabsList>

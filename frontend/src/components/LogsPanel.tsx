@@ -26,18 +26,18 @@ export default function LogsPanel({ logs }: LogsPanelProps) {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-800">
-        <Terminal size={18} className="text-gray-400" />
-        <h2 className="text-lg font-bold text-gray-300">System Logs</h2>
+    <div className="flex flex-col h-full bg-background">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-card">
+        <Terminal size={18} className="text-muted-foreground" />
+        <h2 className="text-lg font-bold text-foreground">System Logs</h2>
       </div>
-      <div className="flex-1 bg-black rounded-none p-4 font-mono text-xs overflow-y-auto">
+      <div className="flex-1 bg-black/90 p-4 font-mono text-xs overflow-y-auto">
         {logs.length === 0 && (
-          <p className="text-gray-600 italic">Waiting for activity...</p>
+          <p className="text-muted-foreground italic">Waiting for activity...</p>
         )}
         {logs.map((log, idx) => (
           <div key={idx} className="mb-1.5 leading-relaxed">
-            <span className="text-gray-600">
+            <span className="text-gray-500">
               [{new Date(log.timestamp).toLocaleTimeString()}]
             </span>{' '}
             <span className={`font-bold ${agentColor(log.agent)}`}>
