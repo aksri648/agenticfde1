@@ -5,6 +5,8 @@ import DaytonaPreview from './components/DaytonaPreview';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs';
 import { ModeToggle } from './components/ModeToggle';
 
+import { MonitorPlay } from 'lucide-react';
+
 const AGENTS = [
   { id: 'pm', label: 'PM Agent', color: 'bg-purple-600 dark:bg-purple-700' },
   { id: 'developer', label: 'Developer', color: 'bg-green-600 dark:bg-green-700' },
@@ -77,7 +79,7 @@ export default function App() {
             <div className="border-b border-border px-4 py-2 flex-shrink-0 bg-card">
               <TabsList className="bg-muted border border-border">
                 <TabsTrigger value="logs">Agent Logs</TabsTrigger>
-                {daytonaUrl && <TabsTrigger value="preview">Live Preview</TabsTrigger>}
+                <TabsTrigger value="preview">Live Preview</TabsTrigger>
               </TabsList>
             </div>
             
@@ -85,11 +87,19 @@ export default function App() {
               <LogsPanel logs={logs} />
             </TabsContent>
             
-            {daytonaUrl && (
-              <TabsContent value="preview" className="flex-1 overflow-hidden m-0 border-none p-0 outline-none">
+            <TabsContent value="preview" className="flex-1 overflow-hidden m-0 border-none p-0 outline-none">
+              {daytonaUrl ? (
                 <DaytonaPreview url={daytonaUrl} />
-              </TabsContent>
-            )}
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground bg-black/90 p-8 text-center">
+                  <MonitorPlay size={48} className="mb-4 opacity-50 text-blue-500" />
+                  <p className="text-lg font-mono">Sandbox not started.</p>
+                  <p className="text-sm opacity-70 mt-2 font-mono">
+                    The live preview will appear here once the App Developer agent provisions the Daytona environment.
+                  </p>
+                </div>
+              )}
+            </TabsContent>
           </Tabs>
         </div>
       </div>
