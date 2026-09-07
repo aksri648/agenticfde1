@@ -8,7 +8,7 @@ export default function DaytonaPreview({ url }: DaytonaPreviewProps) {
   if (!url) return null;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-h-0 w-full">
       <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card">
         <div className="flex items-center gap-2">
           <MonitorPlay size={18} className="text-blue-500" />

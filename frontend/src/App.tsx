@@ -32,7 +32,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background text-foreground transition-colors">
+    <div className="flex flex-col h-screen bg-background text-foreground transition-colors overflow-hidden">
       {/* Top Bar */}
       <header className="flex items-center justify-between px-6 py-3 border-b border-border bg-card">
         <div className="flex items-center gap-3">
@@ -62,9 +62,9 @@ export default function App() {
       </header>
 
       {/* Main Content */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden min-h-0">
         {/* Left Pane: Chat */}
-        <div className="w-[45%] border-r border-border flex flex-col bg-card/50">
+        <div className="w-[45%] border-r border-border flex flex-col bg-card/50 min-h-0">
           <ChatPanel
             messages={messages}
             hitlPlan={hitlPlan}
@@ -74,8 +74,8 @@ export default function App() {
         </div>
 
         {/* Right Pane: Tabs */}
-        <div className="w-[55%] flex flex-col bg-background">
-          <Tabs defaultValue="logs" className="w-full h-full flex flex-col">
+        <div className="w-[55%] flex flex-col bg-background min-h-0">
+          <Tabs defaultValue="logs" className="w-full h-full flex flex-col min-h-0">
             <div className="border-b border-border px-4 py-2 flex-shrink-0 bg-card">
               <TabsList className="bg-muted border border-border">
                 <TabsTrigger value="logs">Agent Logs</TabsTrigger>
@@ -83,15 +83,15 @@ export default function App() {
               </TabsList>
             </div>
             
-            <TabsContent value="logs" className="flex-1 overflow-hidden m-0 border-none p-0 outline-none">
+            <TabsContent value="logs" className="flex-1 overflow-hidden m-0 border-none p-0 outline-none data-[state=active]:flex flex-col min-h-0">
               <LogsPanel logs={logs} />
             </TabsContent>
             
-            <TabsContent value="preview" className="flex-1 overflow-hidden m-0 border-none p-0 outline-none">
+            <TabsContent value="preview" className="flex-1 overflow-hidden m-0 border-none p-0 outline-none data-[state=active]:flex flex-col min-h-0">
               {daytonaUrl ? (
                 <DaytonaPreview url={daytonaUrl} />
               ) : (
-                <div className="flex flex-col items-center justify-center h-full text-muted-foreground bg-black/90 p-8 text-center">
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground bg-black/90 p-8 text-center flex-1">
                   <MonitorPlay size={48} className="mb-4 opacity-50 text-blue-500" />
                   <p className="text-lg font-mono">Sandbox not started.</p>
                   <p className="text-sm opacity-70 mt-2 font-mono">

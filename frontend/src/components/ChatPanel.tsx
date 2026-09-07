@@ -28,7 +28,7 @@ export default function ChatPanel({ messages, hitlPlan, onSend, onHitlRespond }:
   };
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col h-full bg-background min-h-0 w-full">
       <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-card">
         <Send size={18} className="text-blue-500" />
         <h2 className="text-lg font-bold">Agent Chat</h2>

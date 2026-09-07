@@ -26,7 +26,7 @@ export default function LogsPanel({ logs }: LogsPanelProps) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col h-full bg-background min-h-0">
       <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-card">
         <Terminal size={18} className="text-muted-foreground" />
         <h2 className="text-lg font-bold text-foreground">System Logs</h2>
