@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Send, Bot, User } from 'lucide-react';
 import { Message } from '../hooks/useSocket';
 import HitlCard from './HitlCard';
+import ToolCard from './ToolCard';
 
 interface ChatPanelProps {
   messages: Message[];
@@ -32,32 +33,44 @@ export default function ChatPanel({ messages, hitlPlan, onSend, onHitlRespond }:
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {messages.map((msg, idx) => (
-          <div
-            key={idx}
-            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div
-              className={`max-w-[85%] rounded-xl px-4 py-3 ${
-                msg.role === 'user'
-                  ? 'bg-blue-600/20 border border-blue-700/50'
-                  : 'bg-gray-800 border border-gray-700'
-              }`}
-            >
-              <div className="flex items-center gap-2 mb-1">
-                {msg.role === 'user' ? (
-                  <User size={14} className="text-blue-400" />
-                ) : (
-                  <Bot size={14} className="text-green-400" />
-                )}
-                <span className="text-xs font-semibold text-gray-400 uppercase">
-                  {msg.role === 'user' ? 'You' : msg.agent || 'Agent'}
-                </span>
+        {messages.map((msg, idx) => {
+          if (msg.role === 'tool') {
+            return (
+              <div key={idx} className="flex justify-start">
+                <div className="w-[85%]">
+                  <ToolCard toolName={msg.toolName || 'Unknown Tool'} toolInput={msg.toolInput} />
+                </div>
               </div>
-              <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+            );
+          }
+
+          return (
+            <div
+              key={idx}
+              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div
+                className={`max-w-[85%] rounded-xl px-4 py-3 ${
+                  msg.role === 'user'
+                    ? 'bg-blue-600/20 border border-blue-700/50'
+                    : 'bg-gray-800 border border-gray-700'
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  {msg.role === 'user' ? (
+                    <User size={14} className="text-blue-400" />
+                  ) : (
+                    <Bot size={14} className="text-green-400" />
+                  )}
+                  <span className="text-xs font-semibold text-gray-400 uppercase">
+                    {msg.role === 'user' ? 'You' : msg.agent || 'Agent'}
+                  </span>
+                </div>
+                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
         <div ref={messagesEndRef} />
       </div>
 

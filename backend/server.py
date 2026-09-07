@@ -69,6 +69,18 @@ async def handle_start_task(sid, data):
                 tool_input = event.get("input", {})
                 send_log(sid, agent_name, f"Calling tool: {tool_name}")
 
+                await sio.emit("tool_use", {
+                    "tool": tool_name,
+                    "input": tool_input,
+                    "agent": agent_name
+                }, room=sid)
+
+                if "request_human_approval" in tool_name:
+                    send_log(sid, "System", "Execution paused. Awaiting human approval.")
+                    await sio.emit("hitl_request", {
+                        "plan": tool_input.get("plan", "No plan provided"),
+                    }, room=sid)
+
                 # Detect workspace creation and emit preview
                 if "daytona_create_workspace" in tool_name:
                     ws_name = tool_input.get("name", "workspace")
@@ -85,12 +97,6 @@ async def handle_start_task(sid, data):
                         _active_daytona[sid] = preview_url
                         send_log(sid, agent_name, f"Daytona sandbox ready: {preview_url}")
                         await sio.emit("daytona_preview", preview_url, room=sid)
-
-            elif event["type"] == "interrupt":
-                send_log(sid, "System", "Execution paused. Awaiting human approval.")
-                await sio.emit("hitl_request", {
-                    "plan": event.get("plan", "No plan provided"),
-                }, room=sid)
 
             elif event["type"] == "log":
                 send_log(sid, agent_name, event.get("content", ""))
@@ -111,6 +117,16 @@ async def handle_start_task(sid, data):
 async def handle_hitl_response(sid, data):
     feedback = data.get("feedback", "")
     send_log(sid, "User", f"HITL Decision: {feedback}")
+    
+    # Resolve pending hitl futures
+    try:
+        from mcp_servers.hitl import pending_hitl_futures
+        for fut in pending_hitl_futures.values():
+            if not fut.done():
+                fut.set_result(feedback)
+    except Exception as e:
+        print(f"Error resolving HITL future: {e}")
+
     await sio.emit("hitl_resumed", {"feedback": feedback}, room=sid)
 
 

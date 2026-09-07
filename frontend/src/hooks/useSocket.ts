@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 export interface Log {
@@ -8,9 +8,11 @@ export interface Log {
 }
 
 export interface Message {
-  role: 'user' | 'agent';
+  role: 'user' | 'agent' | 'tool';
   agent?: string;
   content: string;
+  toolName?: string;
+  toolInput?: any;
 }
 
 export interface HitlRequest {
@@ -48,6 +50,13 @@ export function useSocket() {
         }
         return updated;
       });
+    });
+
+    s.on('tool_use', (data: { tool: string; input: any; agent: string }) => {
+      setMessages(prev => [
+        ...prev,
+        { role: 'tool', agent: data.agent, content: '', toolName: data.tool, toolInput: data.input }
+      ]);
     });
 
     s.on('hitl_request', (data: HitlRequest) => setHitlPlan(data.plan));

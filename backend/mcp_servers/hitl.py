@@ -5,6 +5,11 @@ from claude_agent_sdk import tool, create_sdk_mcp_server
 BYPASS_HITL = os.getenv("BYPASS_HITL", "0") == "1"
 
 
+import asyncio
+import uuid
+
+pending_hitl_futures = {}
+
 @tool(
     "request_human_approval",
     "Call this tool to pause execution and request human approval before proceeding with a plan or action.",
@@ -23,12 +28,23 @@ async def request_human_approval(args):
                 }
             ]
         }
+        
+    loop = asyncio.get_running_loop()
+    fut = loop.create_future()
+    # Use a dummy global key for the single-user web UI
+    pending_hitl_futures["web_ui"] = fut
+    
+    try:
+        feedback = await fut
+    finally:
+        pending_hitl_futures.pop("web_ui", None)
+
     return {
         "content": [
             {
                 "type": "text",
                 "text": json.dumps(
-                    {"__interrupt__": True, "plan": plan}
+                    {"__approved__": True, "plan": plan, "decision": feedback}
                 ),
             }
         ]
