@@ -6,3 +6,4 @@ dist/
 .vite/
 .venv/
 backend/.venv/
+backend/conversation.db
