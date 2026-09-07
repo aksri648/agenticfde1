@@ -2,6 +2,7 @@ import { useSocket } from './hooks/useSocket';
 import ChatPanel from './components/ChatPanel';
 import LogsPanel from './components/LogsPanel';
 import DaytonaPreview from './components/DaytonaPreview';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs';
 
 const AGENTS = [
   { id: 'pm', label: 'PM Agent', color: 'bg-purple-600' },
@@ -57,7 +58,7 @@ export default function App() {
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Pane: Chat */}
-        <div className="w-1/3 border-r border-gray-800">
+        <div className="w-[45%] border-r border-gray-800 flex flex-col">
           <ChatPanel
             messages={messages}
             hitlPlan={hitlPlan}
@@ -66,17 +67,27 @@ export default function App() {
           />
         </div>
 
-        {/* Middle Pane: Logs */}
-        <div className={`${daytonaUrl ? 'w-1/3 border-r border-gray-800' : 'w-2/3'}`}>
-          <LogsPanel logs={logs} />
+        {/* Right Pane: Tabs */}
+        <div className="w-[55%] flex flex-col bg-gray-950">
+          <Tabs defaultValue="logs" className="w-full h-full flex flex-col">
+            <div className="border-b border-gray-800 px-4 py-2 flex-shrink-0">
+              <TabsList>
+                <TabsTrigger value="logs">Agent Logs</TabsTrigger>
+                {daytonaUrl && <TabsTrigger value="preview">Live Preview</TabsTrigger>}
+              </TabsList>
+            </div>
+            
+            <TabsContent value="logs" className="flex-1 overflow-hidden m-0 border-none p-0 outline-none">
+              <LogsPanel logs={logs} />
+            </TabsContent>
+            
+            {daytonaUrl && (
+              <TabsContent value="preview" className="flex-1 overflow-hidden m-0 border-none p-0 outline-none">
+                <DaytonaPreview url={daytonaUrl} />
+              </TabsContent>
+            )}
+          </Tabs>
         </div>
-
-        {/* Right Pane: Daytona Preview */}
-        {daytonaUrl && (
-          <div className="w-1/3 bg-gray-900">
-            <DaytonaPreview url={daytonaUrl} />
-          </div>
-        )}
       </div>
     </div>
   );

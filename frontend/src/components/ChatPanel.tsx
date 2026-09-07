@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Send, Bot, User } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Message } from '../hooks/useSocket';
 import HitlCard from './HitlCard';
 import ToolCard from './ToolCard';
@@ -56,7 +58,7 @@ export default function ChatPanel({ messages, hitlPlan, onSend, onHitlRespond }:
                     : 'bg-gray-800 border border-gray-700'
                 }`}
               >
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-2">
                   {msg.role === 'user' ? (
                     <User size={14} className="text-blue-400" />
                   ) : (
@@ -66,7 +68,13 @@ export default function ChatPanel({ messages, hitlPlan, onSend, onHitlRespond }:
                     {msg.role === 'user' ? 'You' : msg.agent || 'Agent'}
                   </span>
                 </div>
-                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                <div className="text-sm prose prose-invert prose-sm max-w-none break-words">
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkGfm]}
+                  >
+                    {msg.content}
+                  </ReactMarkdown>
+                </div>
               </div>
             </div>
           );
