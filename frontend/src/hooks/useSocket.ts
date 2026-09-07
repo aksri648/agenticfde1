@@ -59,7 +59,12 @@ export function useSocket() {
       ]);
     });
 
+    s.on('sync_history', (data: { messages: Message[] }) => {
+      setMessages(data.messages);
+    });
+
     s.on('hitl_request', (data: HitlRequest) => setHitlPlan(data.plan));
+    s.on('hitl_resumed', () => setHitlPlan(null));
 
     s.on('daytona_preview', (url: string) => setDaytonaUrl(url));
 

@@ -4,6 +4,9 @@ import re
 import socketio
 from aiohttp import web
 from orchestrator import run_agent_task, build_agent_map
+from db import init_db, save_message, append_to_last_message, get_all_messages, save_state, get_state
+
+init_db()
 
 sio = socketio.AsyncServer(async_mode="aiohttp", cors_allowed_origins="*")
 app = web.Application()
@@ -16,11 +19,12 @@ _active_daytona: dict[str, str] = {}
 
 
 def send_log(socket, agent: str, message: str):
-    asyncio.create_task(sio.emit("log", {
+    log_data = {
         "timestamp": __import__("datetime").datetime.utcnow().isoformat(),
         "agent": agent,
         "message": message,
-    }, room=socket))
+    }
+    asyncio.create_task(sio.emit("log", log_data, room=socket))
 
 
 def _extract_preview_url(text: str) -> str | None:
@@ -35,6 +39,20 @@ def _extract_preview_url(text: str) -> str | None:
 @sio.event
 async def connect(sid, environ):
     print(f"Frontend connected: {sid}")
+    # Restore messages
+    msgs = get_all_messages()
+    await sio.emit("sync_history", {"messages": msgs}, room=sid)
+    
+    # Restore preview URL if exists
+    preview_url = get_state("daytona_url")
+    if preview_url:
+        _active_daytona[sid] = preview_url
+        await sio.emit("daytona_preview", preview_url, room=sid)
+        
+    # Restore hitl plan if exists
+    hitl_plan = get_state("hitl_plan")
+    if hitl_plan:
+        await sio.emit("hitl_request", {"plan": hitl_plan}, room=sid)
 
 
 @sio.event
@@ -47,6 +65,10 @@ async def disconnect(sid):
 async def handle_start_task(sid, data):
     prompt = data.get("prompt", "")
     agent_name = data.get("agent", "pm")
+    
+    # Save user message to DB
+    save_message("user", prompt)
+    
     send_log(sid, "System", f"Task received for {agent_name} agent: {prompt}")
 
     opts = agent_map.get(agent_name)
@@ -55,8 +77,17 @@ async def handle_start_task(sid, data):
         return
 
     try:
+        # Keep track if we started an agent message to append chunks
+        current_agent_msg_started = False
+        
         async for event in run_agent_task(opts, prompt):
             if event["type"] == "text":
+                if not current_agent_msg_started:
+                    save_message("agent", event["content"], agent=agent_name)
+                    current_agent_msg_started = True
+                else:
+                    append_to_last_message(agent_name, event["content"])
+                    
                 await sio.emit("message_stream", {
                     "role": "agent",
                     "agent": agent_name,
@@ -65,8 +96,12 @@ async def handle_start_task(sid, data):
                 send_log(sid, agent_name, "Streaming response...")
 
             elif event["type"] == "tool_use":
+                current_agent_msg_started = False
                 tool_name = event.get("tool", "")
                 tool_input = event.get("input", {})
+                
+                save_message("tool", "", agent=agent_name, tool_name=tool_name, tool_input=tool_input)
+                
                 send_log(sid, agent_name, f"Calling tool: {tool_name}")
 
                 await sio.emit("tool_use", {
@@ -76,9 +111,11 @@ async def handle_start_task(sid, data):
                 }, room=sid)
 
                 if "request_human_approval" in tool_name:
+                    plan = tool_input.get("plan", "No plan provided")
+                    save_state("hitl_plan", plan)
                     send_log(sid, "System", "Execution paused. Awaiting human approval.")
                     await sio.emit("hitl_request", {
-                        "plan": tool_input.get("plan", "No plan provided"),
+                        "plan": plan,
                     }, room=sid)
 
                 # Detect workspace creation and emit preview
@@ -87,6 +124,7 @@ async def handle_start_task(sid, data):
                     send_log(sid, agent_name, f"Spinning up Daytona workspace: {ws_name}")
 
             elif event["type"] == "tool_result":
+                current_agent_msg_started = False
                 content = event.get("content", "")
                 send_log(sid, agent_name, "Tool execution completed.")
 
@@ -95,6 +133,7 @@ async def handle_start_task(sid, data):
                     preview_url = _extract_preview_url(content)
                     if preview_url and sid not in _active_daytona:
                         _active_daytona[sid] = preview_url
+                        save_state("daytona_url", preview_url)
                         send_log(sid, agent_name, f"Daytona sandbox ready: {preview_url}")
                         await sio.emit("daytona_preview", preview_url, room=sid)
 
@@ -105,6 +144,7 @@ async def handle_start_task(sid, data):
                 send_log(sid, "System", f"MCP server '{event['server']}' status: {event['status']}")
 
             elif event["type"] == "result":
+                current_agent_msg_started = False
                 send_log(sid, agent_name, f"Task completed: {event.get('subtype', 'success')}")
                 await sio.emit("task_complete", {"agent": agent_name}, room=sid)
 
@@ -117,6 +157,12 @@ async def handle_start_task(sid, data):
 async def handle_hitl_response(sid, data):
     feedback = data.get("feedback", "")
     send_log(sid, "User", f"HITL Decision: {feedback}")
+    
+    # Save the user's feedback to the DB as well
+    save_message("user", feedback)
+    
+    # Clear hitl plan state
+    save_state("hitl_plan", "")
     
     # Resolve pending hitl futures
     try:
