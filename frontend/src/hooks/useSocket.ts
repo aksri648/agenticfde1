@@ -19,9 +19,17 @@ export interface HitlRequest {
   plan: string;
 }
 
+export interface Session {
+  id: string;
+  title: string;
+  updated_at: string;
+}
+
 export function useSocket() {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connected, setConnected] = useState(false);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [logs, setLogs] = useState<Log[]>([]);
   const [hitlPlan, setHitlPlan] = useState<string | null>(null);
@@ -34,6 +42,10 @@ export function useSocket() {
 
     s.on('connect', () => setConnected(true));
     s.on('disconnect', () => setConnected(false));
+
+    s.on('sessions_list', (data: { sessions: Session[] }) => {
+      setSessions(data.sessions);
+    });
 
     s.on('log', (log: Log) => setLogs(prev => [...prev, log]));
 
@@ -59,19 +71,28 @@ export function useSocket() {
       ]);
     });
 
-    s.on('sync_history', (data: { messages: Message[] }) => {
+    s.on('sync_history', (data: { messages: Message[], sessionId: string }) => {
       setMessages(data.messages);
+      setCurrentSessionId(data.sessionId);
     });
 
     s.on('hitl_request', (data: HitlRequest) => setHitlPlan(data.plan));
     s.on('hitl_resumed', () => setHitlPlan(null));
 
-    s.on('daytona_preview', (url: string) => setDaytonaUrl(url));
+    s.on('daytona_preview', (url: string | null) => setDaytonaUrl(url));
 
     s.on('task_complete', () => setHitlPlan(null));
 
     return () => { s.close(); };
   }, []);
+
+  const createSession = () => {
+    socket?.emit('create_session');
+  };
+
+  const switchSession = (sessionId: string) => {
+    socket?.emit('switch_session', { sessionId });
+  };
 
   const startTask = (prompt: string, agent: string) => {
     if (!socket || !prompt.trim()) return;
@@ -88,6 +109,10 @@ export function useSocket() {
 
   return {
     connected,
+    sessions,
+    currentSessionId,
+    createSession,
+    switchSession,
     messages,
     logs,
     hitlPlan,

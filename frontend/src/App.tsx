@@ -5,7 +5,7 @@ import DaytonaPreview from './components/DaytonaPreview';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs';
 import { ModeToggle } from './components/ModeToggle';
 
-import { MonitorPlay } from 'lucide-react';
+import { MonitorPlay, Plus, MessageSquare } from 'lucide-react';
 
 const AGENTS = [
   { id: 'pm', label: 'PM Agent', color: 'bg-purple-600 dark:bg-purple-700' },
@@ -18,6 +18,10 @@ const AGENTS = [
 export default function App() {
   const {
     connected,
+    sessions,
+    currentSessionId,
+    createSession,
+    switchSession,
     messages,
     logs,
     hitlPlan,
@@ -63,8 +67,37 @@ export default function App() {
 
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden min-h-0">
+        
+        {/* Sidebar: Sessions */}
+        <div className="w-64 border-r border-border flex flex-col bg-muted/30">
+          <div className="p-3">
+            <button 
+              onClick={createSession}
+              className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            >
+              <Plus size={16} /> New Chat
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-1">
+            {sessions.map(s => (
+              <button
+                key={s.id}
+                onClick={() => switchSession(s.id)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm transition-colors ${
+                  currentSessionId === s.id 
+                    ? 'bg-card text-foreground shadow-sm border border-border/50' 
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                }`}
+              >
+                <MessageSquare size={16} className="shrink-0" />
+                <span className="truncate">{s.title}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Left Pane: Chat */}
-        <div className="w-[45%] border-r border-border flex flex-col bg-card/50 min-h-0">
+        <div className="w-[400px] xl:w-[500px] border-r border-border flex flex-col bg-card/50 min-h-0 shrink-0">
           <ChatPanel
             messages={messages}
             hitlPlan={hitlPlan}
@@ -74,7 +107,7 @@ export default function App() {
         </div>
 
         {/* Right Pane: Tabs */}
-        <div className="w-[55%] flex flex-col bg-background min-h-0">
+        <div className="flex-1 flex flex-col bg-background min-h-0">
           <Tabs defaultValue="logs" className="w-full h-full flex flex-col min-h-0">
             <div className="border-b border-border px-4 py-2 flex-shrink-0 bg-card">
               <TabsList className="bg-muted border border-border">
