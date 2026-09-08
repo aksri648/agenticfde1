@@ -169,12 +169,12 @@ export default function ShaderShowcase() {
           >
             Pricing
           </a>
-          <a
-            href="#"
+          <Link
+            to="/docs"
             className="text-white/80 hover:text-white text-xs font-light px-3 py-2 rounded-full hover:bg-white/10 transition-all duration-200"
           >
             Docs
-          </a>
+          </Link>
         </nav>
 
         {/* Login Button Group with Arrow */}
