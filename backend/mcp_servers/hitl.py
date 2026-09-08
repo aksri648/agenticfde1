@@ -17,7 +17,8 @@ pending_hitl_futures = {}
 )
 async def request_human_approval(args):
     plan = args["plan"]
-    if BYPASS_HITL:
+    bypass = os.getenv("BYPASS_HITL", "0") == "1"
+    if bypass:
         return {
             "content": [
                 {

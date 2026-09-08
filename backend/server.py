@@ -165,8 +165,17 @@ async def handle_start_task(sid, data):
                 content = event.get("content", "")
                 send_log(sid, agent_name, "Tool execution completed.")
 
+                # content might be a string, or a list of blocks
+                text_content = ""
                 if isinstance(content, str):
-                    preview_url = _extract_preview_url(content)
+                    text_content = content
+                elif isinstance(content, list):
+                    for block in content:
+                        if isinstance(block, dict) and block.get("type") == "text":
+                            text_content += block.get("text", "")
+
+                if text_content:
+                    preview_url = _extract_preview_url(text_content)
                     if preview_url and sid not in _active_daytona:
                         _active_daytona[sid] = preview_url
                         save_state(session_id, "daytona_url", preview_url)
